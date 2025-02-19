@@ -1,0 +1,30 @@
+@model IEnumerable<dynamic>
+
+@{
+    ViewData["Title"] = "Report Result";
+    var groupedData = Model.GroupBy(d => d.Title);
+}
+
+<h3>Результат</h3>
+
+@foreach (var group in groupedData)
+{
+    <h2>@group.Key</h2>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Тип повреждения</th>
+                <th>Количество</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in group)
+            {
+                <tr>
+                    <td>@item.ClassName</td>
+                    <td>@item.RecordCount</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}

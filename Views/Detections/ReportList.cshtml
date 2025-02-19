@@ -1,0 +1,75 @@
+@{
+    ViewData["Title"] = "Report List";
+}
+
+<h1>Report List</h1>
+
+<div class="form-group">
+    <label for="videoNameSelect">Select Video Name:</label>
+    <select id="videoNameSelect" class="form-control">
+        @foreach (var videoName in ViewBag.VideoNames)
+        {
+            <option value="@videoName.VideoName">@videoName.VideoName</option>
+        }
+    </select>
+</div>
+<button id="submitButton" class="btn btn-primary">Submit</button>
+
+<div id="reportResult">
+    <table class="table" id="resultTable">
+        <thead>
+            <tr>
+                <th>Title</th>
+                <th>ImageName</th>
+                <th>VideoName</th>
+                <th>ClassName</th>
+                <th>Latitude</th>
+                <th>Longitude</th>
+                <th>Status</th>
+                <th>CriticalLevel</th>
+                <th>DateTimeDetection</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- Results will be populated here -->
+        </tbody>
+    </table>
+</div>
+
+@section Scripts {
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            // Handle form submission
+            document.getElementById('submitButton').addEventListener('click', function () {
+                const selectedVideoName = document.getElementById('videoNameSelect').value;
+                fetch('/Detections/ReportList', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ selectedVideoName: selectedVideoName })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    const tbody = document.getElementById('resultTable').querySelector('tbody');
+                    tbody.innerHTML = ''; // Clear existing rows
+                    data.forEach(item => {
+                        const row = document.createElement('tr');
+                        row.innerHTML = `
+                            <td>${item.title}</td>
+                            <td>${item.imageName}</td>
+                            <td>${item.videoName}</td>
+                            <td>${item.className}</td>
+                            <td>${item.latitude}</td>
+                            <td>${item.longitude}</td>
+                            <td>${item.status}</td>
+                            <td>${item.criticalLevel}</td>
+                            <td>${new Date(item.dateTimeDetection).toLocaleString()}</td>
+                        `;
+                        tbody.appendChild(row);
+                    });
+                });
+            });
+        });
+    </script>
+}
