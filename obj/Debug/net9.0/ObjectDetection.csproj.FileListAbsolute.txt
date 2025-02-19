@@ -219,3 +219,4 @@ C:\_dotnet\ObjectDetection\obj\Debug\net9.0\refint\ObjectDetection.dll
 C:\_dotnet\ObjectDetection\obj\Debug\net9.0\ObjectDetection.pdb
 C:\_dotnet\ObjectDetection\obj\Debug\net9.0\ObjectDetection.genruntimeconfig.cache
 C:\_dotnet\ObjectDetection\obj\Debug\net9.0\ref\ObjectDetection.dll
+C:\_dotnet\ObjectDetection\obj\Debug\net9.0\ObjectDetection.sourcelink.json

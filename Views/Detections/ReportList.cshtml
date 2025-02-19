@@ -7,10 +7,7 @@
 <div class="form-group">
     <label for="videoNameSelect">Select Video Name:</label>
     <select id="videoNameSelect" class="form-control">
-        @foreach (var videoName in ViewBag.VideoNames)
-        {
-            <option value="@videoName.VideoName">@videoName.VideoName</option>
-        }
+        <!-- Options will be populated via JavaScript -->
     </select>
 </div>
 <button id="submitButton" class="btn btn-primary">Submit</button>
@@ -39,18 +36,33 @@
 @section Scripts {
     <script>
         document.addEventListener("DOMContentLoaded", function () {
+            // Fetch video names from the API
+            fetch('/Detections/GroupByVideoName')
+                .then(response => response.json())
+                .then(data => {
+                    const select = document.getElementById('videoNameSelect');
+                    data.forEach(item => {
+                        const option = document.createElement('option');
+                        option.value = item.videoName;
+                        option.textContent = item.videoName;
+                        select.appendChild(option);
+                    });
+                });
+
             // Handle form submission
             document.getElementById('submitButton').addEventListener('click', function () {
                 const selectedVideoName = document.getElementById('videoNameSelect').value;
+                console.log(`Sending selectedVideoName: ${selectedVideoName}`);
                 fetch('/Detections/ReportList', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
                     },
-                    body: JSON.stringify({ selectedVideoName: selectedVideoName })
+                    body: JSON.stringify(selectedVideoName)
                 })
                 .then(response => response.json())
                 .then(data => {
+                    console.log(`Received data:`, data);
                     const tbody = document.getElementById('resultTable').querySelector('tbody');
                     tbody.innerHTML = ''; // Clear existing rows
                     data.forEach(item => {

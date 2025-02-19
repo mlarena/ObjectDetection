@@ -155,6 +155,8 @@ namespace ObjectDetection.Controllers
             return Json(groupedData);
         }
 
+   
+
         // GET: Detections/GroupByClassName
         [HttpGet]
         public async Task<IActionResult> GroupByClassName()
@@ -191,18 +193,20 @@ namespace ObjectDetection.Controllers
        // GET: Detections/ReportList
         public async Task<IActionResult> ReportList()
         {
-            var groupedData = await _context.Detections
-                .GroupBy(d => d.VideoName)
-                .Select(g => new { VideoName = g.Key, Count = g.Count() })
-                .ToListAsync();
-            ViewBag.VideoNames = groupedData;
+            Console.WriteLine("ReportList()");
+            // var groupedData = await _context.Detections
+            //     .GroupBy(d => d.VideoName)
+            //     .Select(g => new { VideoName = g.Key, Count = g.Count() })
+            //     .ToListAsync();
+            // ViewBag.VideoNames = groupedData;
             return View();
         }
 
         // POST: Detections/ReportList
         [HttpPost]
-        public async Task<IActionResult> ReportList(string selectedVideoName)
+        public async Task<IActionResult> ReportList([FromBody] string selectedVideoName)
         {
+            Console.WriteLine($"Received selectedVideoName: {selectedVideoName}");
             var filteredData = await _context.Detections
                 .Where(d => d.VideoName == selectedVideoName)
                 .ToListAsync();
