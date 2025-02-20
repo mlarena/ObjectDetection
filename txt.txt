@@ -1,0 +1,3 @@
+git add .
+git commit -m "Detection"
+git push origin main

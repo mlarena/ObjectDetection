@@ -12,25 +12,23 @@
 </div>
 <button id="submitButton" class="btn btn-primary">Submit</button>
 
-<div id="reportResult">
-    <table class="table" id="resultTable">
-        <thead>
-            <tr>
-                <th>Title</th>
-                <th>ImageName</th>
-                <th>VideoName</th>
-                <th>ClassName</th>
-                <th>Latitude</th>
-                <th>Longitude</th>
-                <th>Status</th>
-                <th>CriticalLevel</th>
-                <th>DateTimeDetection</th>
-            </tr>
-        </thead>
-        <tbody>
-            <!-- Results will be populated here -->
-        </tbody>
-    </table>
+<div id="reportResult" class="row">
+    <!-- Results will be populated here -->
+</div>
+
+<!-- Modal -->
+<div class="modal fade" id="imageModal" tabindex="-1" aria-labelledby="imageModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="imageModalLabel">Image Preview</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <img id="modalImage" class="img-fluid" src="" alt="">
+            </div>
+        </div>
+    </div>
 </div>
 
 @section Scripts {
@@ -63,25 +61,59 @@
                 .then(response => response.json())
                 .then(data => {
                     console.log(`Received data:`, data);
-                    const tbody = document.getElementById('resultTable').querySelector('tbody');
-                    tbody.innerHTML = ''; // Clear existing rows
+                    const reportResult = document.getElementById('reportResult');
+                    reportResult.innerHTML = ''; // Clear existing tiles
                     data.forEach(item => {
-                        const row = document.createElement('tr');
-                        row.innerHTML = `
-                            <td>${item.title}</td>
-                            <td>${item.imageName}</td>
-                            <td>${item.videoName}</td>
-                            <td>${item.className}</td>
-                            <td>${item.latitude}</td>
-                            <td>${item.longitude}</td>
-                            <td>${item.status}</td>
-                            <td>${item.criticalLevel}</td>
-                            <td>${new Date(item.dateTimeDetection).toLocaleString()}</td>
+                        const trimmedVideoName = item.videoName.substring(0, item.videoName.length - 4);
+                        const tile = document.createElement('div');
+                        tile.className = 'col-md-3'; // Make tiles smaller
+                        tile.innerHTML = `
+                            <div class="card mb-3 shadow-hover">
+                                <img src="/sn/${trimmedVideoName}/${item.imageName}" class="card-img-top" alt="${item.imageName}">
+                                <div class="card-body">
+                                    <h5 class="card-title">${item.title}</h5>
+                                    <p class="card-text"><strong>Class Name:</strong> ${item.className}</p>
+                                    <p class="card-text"><strong>Status:</strong> ${item.status}</p>
+                                    <p class="card-text"><strong>Critical Level:</strong> ${item.criticalLevel}</p>
+                                </div>
+                            </div>
                         `;
-                        tbody.appendChild(row);
+                        tile.querySelector('.card').addEventListener('click', function () {
+                            const modalImage = document.getElementById('modalImage');
+                            modalImage.src = `/sn/${trimmedVideoName}/${item.imageName}`;
+                            const modal = new bootstrap.Modal(document.getElementById('imageModal'));
+                            modal.show();
+                        });
+                        reportResult.appendChild(tile);
                     });
                 });
             });
         });
     </script>
 }
+
+
+    <style>
+        .card {
+            margin-bottom: 1rem;
+            transition: box-shadow 0.3s ease;
+        }
+
+        .card-body {
+            padding: 0.5rem;
+        }
+
+        .card-text {
+            margin-bottom: 0.25rem;
+            line-height: 1.2;
+        }
+
+        .card-img-top {
+            height: 150px;
+            object-fit: cover;
+        }
+
+        .shadow-hover:hover {
+            box-shadow: 0 4px 8px rgba(0, 123, 255, 0.3);
+        }
+    </style>
