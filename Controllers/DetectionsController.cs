@@ -152,6 +152,7 @@ namespace ObjectDetection.Controllers
                 .GroupBy(d => d.VideoName)
                 .Select(g => new { VideoName = g.Key, Count = g.Count() })
                 .ToListAsync();
+            Console.WriteLine(groupedData);
             return Json(groupedData);
         }
 
@@ -163,6 +164,7 @@ namespace ObjectDetection.Controllers
                 .GroupBy(d => d.Title)
                 .Select(g => new { Title = g.Key, Count = g.Count() })
                 .ToListAsync();
+            Console.WriteLine(groupedData);    
             return Json(groupedData);
         }
 
@@ -211,14 +213,23 @@ namespace ObjectDetection.Controllers
             return View();
         }
 
-        // POST: Detections/ReportList
+         // POST: Detections/ReportList
         [HttpPost]
-        public async Task<IActionResult> ReportList([FromBody] string selectedVideoName)
+        public async Task<IActionResult> ReportList([FromBody] FilterRequest request)
         {
-            Console.WriteLine($"Received selectedVideoName: {selectedVideoName}");
-            var filteredData = await _context.Detections
-                .Where(d => d.VideoName == selectedVideoName)
-                .ToListAsync();
+            IQueryable<Detection> query = _context.Detections;
+
+            if (!string.IsNullOrEmpty(request.SelectedVideoName))
+            {
+                query = query.Where(d => d.VideoName == request.SelectedVideoName);
+            }
+
+            if (!string.IsNullOrEmpty(request.SelectedTitle))
+            {
+                query = query.Where(d => d.Title == request.SelectedTitle);
+            }
+
+            var filteredData = await query.ToListAsync();
             return Json(filteredData);
         }
 
@@ -241,5 +252,11 @@ namespace ObjectDetection.Controllers
                 .ToListAsync();
             return Json(filteredData);
         }
+    }
+
+     public class FilterRequest
+    {
+        public string? SelectedVideoName { get; set; }
+        public string? SelectedTitle { get; set; }
     }
 }

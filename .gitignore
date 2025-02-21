@@ -76,6 +76,8 @@ _ReSharper*/
 *.exe
 *.dll
 *.pdb
+*.db-shm
+*.db-wal
 
 # Ignore build output directories
 **/bin/

@@ -1,3 +1,6 @@
 git add .
 git commit -m "Detection"
 git push origin main
+
+docker build -t detection-app .
+docker run -p 7777:8080 detection-app

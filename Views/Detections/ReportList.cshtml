@@ -5,7 +5,23 @@
 <h1>Report List</h1>
 
 <div class="form-group">
-    <label for="videoNameSelect">Select Video Name:</label>
+    <label>Select Filter Type:</label>
+    <div class="form-check">
+        <input class="form-check-input" type="radio" name="filterType" id="filterByVideoName" value="videoName" checked>
+        <label class="form-check-label" for="filterByVideoName">
+            Filter by Video Name
+        </label>
+    </div>
+    <div class="form-check">
+        <input class="form-check-input" type="radio" name="filterType" id="filterByTitle" value="title">
+        <label class="form-check-label" for="filterByTitle">
+            Filter by Title
+        </label>
+    </div>
+</div>
+
+<div class="form-group">
+    <label for="videoNameSelect">Select Value:</label>
     <select id="videoNameSelect" class="form-control">
         <!-- Options will be populated via JavaScript -->
     </select>
@@ -34,29 +50,74 @@
 @section Scripts {
     <script>
         document.addEventListener("DOMContentLoaded", function () {
-            // Fetch video names from the API
-            fetch('/Detections/GroupByVideoName')
-                .then(response => response.json())
-                .then(data => {
-                    const select = document.getElementById('videoNameSelect');
-                    data.forEach(item => {
-                        const option = document.createElement('option');
-                        option.value = item.videoName;
-                        option.textContent = item.videoName;
-                        select.appendChild(option);
+            const filterTypeRadios = document.querySelectorAll('input[name="filterType"]');
+            const videoNameSelect = document.getElementById('videoNameSelect');
+
+            // Load initial data based on the default radio button selection
+            loadFilterOptions();
+
+            // Add event listener to radio buttons
+            filterTypeRadios.forEach(radio => {
+                radio.addEventListener('change', loadFilterOptions);
+            });
+
+            function loadFilterOptions() {
+                const selectedFilterType = document.querySelector('input[name="filterType"]:checked').value;
+                console.log(selectedFilterType);
+                let apiUrl = '';
+
+                if (selectedFilterType === 'videoName') {
+                    apiUrl = '/Detections/GroupByVideoName';
+                } else if (selectedFilterType === 'title') {
+                    apiUrl = '/Detections/GroupByTitle';
+                }
+
+                fetch(apiUrl)
+                    .then(response => response.json())
+                    .then(data => {
+                        videoNameSelect.innerHTML = ''; // Clear existing options
+                        console.log(data); // данные есть
+                        data.forEach(item => {
+
+                            if (selectedFilterType === 'videoName') {
+                                console.log(item); // данные есть
+                                const option = document.createElement('option');
+                                option.value = item.videoName;
+                                option.textContent = item.videoName;
+                                console.log(option); // теперь должно быть определено
+                                videoNameSelect.appendChild(option);
+                            } else if (selectedFilterType === 'title') {
+                                console.log(item); // данные есть
+                                const option = document.createElement('option');
+                                option.value = item.title;
+                                option.textContent = item.title;
+                                console.log(option); // теперь должно быть определено
+                                videoNameSelect.appendChild(option);
+                            }
+                           
+                        });
                     });
-                });
+            }
 
             // Handle form submission
             document.getElementById('submitButton').addEventListener('click', function () {
-                const selectedVideoName = document.getElementById('videoNameSelect').value;
-                console.log(`Sending selectedVideoName: ${selectedVideoName}`);
+                const selectedValue = videoNameSelect.value;
+                const selectedFilterType = document.querySelector('input[name="filterType"]:checked').value;
+                const requestBody = {};
+
+                if (selectedFilterType === 'videoName') {
+                    requestBody.selectedVideoName = selectedValue;
+                } else if (selectedFilterType === 'title') {
+                    requestBody.selectedTitle = selectedValue;
+                }
+
+                console.log(`Sending requestBody:`, requestBody);
                 fetch('/Detections/ReportList', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
                     },
-                    body: JSON.stringify(selectedVideoName)
+                    body: JSON.stringify(requestBody)
                 })
                 .then(response => response.json())
                 .then(data => {
@@ -64,7 +125,7 @@
                     const reportResult = document.getElementById('reportResult');
                     reportResult.innerHTML = ''; // Clear existing tiles
                     data.forEach(item => {
-                        const trimmedVideoName = item.videoName.substring(0, item.videoName.length - 4);
+                        const trimmedVideoName = item.videoName.substring(0, item.videoName.length - 3);
                         const tile = document.createElement('div');
                         tile.className = 'col-md-3'; // Make tiles smaller
                         tile.innerHTML = `
@@ -91,7 +152,6 @@
         });
     </script>
 }
-
 
     <style>
         .card {
