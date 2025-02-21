@@ -156,6 +156,15 @@ namespace ObjectDetection.Controllers
         }
 
    
+        [HttpGet]
+        public async Task<IActionResult> GroupByTitle()
+        {
+            var groupedData = await _context.Detections
+                .GroupBy(d => d.Title)
+                .Select(g => new { Title = g.Key, Count = g.Count() })
+                .ToListAsync();
+            return Json(groupedData);
+        }
 
         // GET: Detections/GroupByClassName
         [HttpGet]
